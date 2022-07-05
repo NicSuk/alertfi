@@ -4,36 +4,29 @@ import ChainIds from './entities/chainIds';
 import * as providerHelpers from './helpers/provider-helpers';
 
 const alertFiContracts = alertFiDefinitions.map(def => {
+    let alertFiContract = {
+        contractParam: def.contractParam,
+        method: def.method,
+        alertValue: def.alertValue,
+        name: def.name,
+        methodResultProperty: def.methodResultProperty,
+        parseResult: def.parseResult
+    };
     switch (def.networkId) {
         case ChainIds.Polygon:
             return {
-                contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_polygon),
-                contractParam: def.contractParam,
-                method: def.method,
-                alertValue: def.alertValue,
-                name: def.name,
-                methodResultProperty: def.methodResultProperty,
-                parseResult: def.parseResult
+                ...alertFiContract,
+                contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_polygon)
             }
         case ChainIds.Optimism:
             return {
-                contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_optimism),
-                contractParam: def.contractParam,
-                method: def.method,
-                alertValue: def.alertValue,
-                name: def.name,
-                methodResultProperty: def.methodResultProperty,
-                parseResult: def.parseResult
+                ...alertFiContract,
+                contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_optimism)
             }
         case ChainIds.Gnosis:
             return {
-                contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_gnosis),
-                contractParam: def.contractParam,
-                method: def.method,
-                alertValue: def.alertValue,
-                name: def.name,
-                methodResultProperty: def.methodResultProperty,
-                parseResult: def.parseResult
+                ...alertFiContract,
+                contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_gnosis)
             }
     }
 })
@@ -45,9 +38,9 @@ async function start() {
             const resultToRead = alertFiContract.methodResultProperty ? result[alertFiContract.methodResultProperty] : result;
             const parseResult = alertFiContract.parseResult || 0;
             console.log(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`);
-            
+
             const resultBN = ethers.BigNumber.from(resultToRead);
-            const alertValueBN =  ethers.BigNumber.from(alertFiContract.alertValue)
+            const alertValueBN = ethers.BigNumber.from(alertFiContract.alertValue)
             if (resultBN.lte(alertValueBN)) {
                 providerHelpers.sendTelegramMessage(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`)
             }

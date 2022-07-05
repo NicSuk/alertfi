@@ -1,5 +1,6 @@
-/dist
+/node_modules
 /client/node_modules
+/server/dist
 /server/node_modules
 /server/.env
 /server/src/alert-definitions.ts
