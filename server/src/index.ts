@@ -10,7 +10,8 @@ const alertFiContracts = alertFiDefinitions.map(def => {
         alertValue: def.alertValue,
         name: def.name,
         methodResultProperty: def.methodResultProperty,
-        parseResult: def.parseResult
+        parseResult: def.parseResult,
+        compareMethod: def.compareMethod
     };
     switch (def.networkId) {
         case ChainIds.Polygon:
@@ -34,16 +35,31 @@ const alertFiContracts = alertFiDefinitions.map(def => {
 async function start() {
     for (let alertFiContract of alertFiContracts) {
         if (alertFiContract) {
-            const result = await alertFiContract.contract[alertFiContract.method](alertFiContract.contractParam);
+            let result;
+            if (alertFiContract.contractParam) {
+                result = await alertFiContract.contract[alertFiContract.method](alertFiContract.contractParam);
+            } else {
+                result = await alertFiContract.contract[alertFiContract.method]();
+            }
             const resultToRead = alertFiContract.methodResultProperty ? result[alertFiContract.methodResultProperty] : result;
             const parseResult = alertFiContract.parseResult || 0;
             console.log(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`);
 
             const resultBN = ethers.BigNumber.from(resultToRead);
-            const alertValueBN = ethers.BigNumber.from(alertFiContract.alertValue)
-            if (resultBN.lte(alertValueBN)) {
-                providerHelpers.sendTelegramMessage(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`)
+            const alertValueBN = ethers.BigNumber.from(alertFiContract.alertValue);
+            switch (alertFiContract.compareMethod) {
+                case 'gte':
+                    if (resultBN.gte(alertValueBN)) {
+                        providerHelpers.sendTelegramMessage(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`);
+                    }
+                    break;
+                default:
+                    if (resultBN.lte(alertValueBN)) {
+                        providerHelpers.sendTelegramMessage(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`);
+                    }
+                    break;
             }
+
         }
     }
     console.log(`----------------`);
