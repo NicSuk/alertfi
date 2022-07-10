@@ -7,7 +7,7 @@
     "debug": "node -r ts-node/register --inspect ./src/index.ts",
     "rebuild": "rm -rf ./dist && tsc && pm2 restart all",
     "build": "rm -rf ./dist && tsc",
-    "start": "pm2 start dist/src/index.js --name AlertFi --cron \"*/15 * * * *\" -- --color"
+    "start": "pm2 start dist/src/index.js --name AlertFi --cron \"*/10 * * * *\" -- --color"
   },
   "keywords": [],
   "author": "",

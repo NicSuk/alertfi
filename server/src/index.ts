@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import alertFiDefinitions from './alert-definitions';
 import ChainIds from './entities/chainIds';
+import * as commonHelpers from './helpers/common-helpers';
 import * as providerHelpers from './helpers/provider-helpers';
 
 const alertFiContracts = alertFiDefinitions.map(def => {
@@ -11,7 +12,8 @@ const alertFiContracts = alertFiDefinitions.map(def => {
         name: def.name,
         methodResultProperty: def.methodResultProperty,
         parseResult: def.parseResult,
-        compareMethod: def.compareMethod
+        compareMethod: def.compareMethod,
+        alertType: def.alertType
     };
     switch (def.networkId) {
         case ChainIds.Polygon:
@@ -43,19 +45,19 @@ async function start() {
             }
             const resultToRead = alertFiContract.methodResultProperty ? result[alertFiContract.methodResultProperty] : result;
             const parseResult = alertFiContract.parseResult || 0;
-            console.log(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`);
+            commonHelpers.formattedConsoleLog(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`);
 
             const resultBN = ethers.BigNumber.from(resultToRead);
             const alertValueBN = ethers.BigNumber.from(alertFiContract.alertValue);
             switch (alertFiContract.compareMethod) {
                 case 'gte':
                     if (resultBN.gte(alertValueBN)) {
-                        providerHelpers.sendTelegramMessage(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`);
+                        providerHelpers.sendTelegramMessage(`${alertFiContract.name}`, `${ethers.utils.formatUnits(resultToRead, parseResult)}`, alertFiContract.alertType);
                     }
                     break;
                 default:
                     if (resultBN.lte(alertValueBN)) {
-                        providerHelpers.sendTelegramMessage(`${alertFiContract.name}: ${ethers.utils.formatUnits(resultToRead, parseResult)}`);
+                        providerHelpers.sendTelegramMessage(`${alertFiContract.name}`, `${ethers.utils.formatUnits(resultToRead, parseResult)}`, alertFiContract.alertType);
                     }
                     break;
             }
