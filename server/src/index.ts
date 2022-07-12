@@ -31,6 +31,11 @@ const alertFiContracts = alertFiDefinitions.map(def => {
                 ...alertFiContract,
                 contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_gnosis)
             }
+        case ChainIds.Arbitrum:
+            return {
+                ...alertFiContract,
+                contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_arbitrum)
+            }
     }
 })
 
