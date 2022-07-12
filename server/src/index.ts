@@ -4,6 +4,8 @@ import ChainIds from './entities/chainIds';
 import * as commonHelpers from './helpers/common-helpers';
 import * as providerHelpers from './helpers/provider-helpers';
 
+
+let lastTelegramMessage: { timestamp: number, message: string } = { timestamp: 0, message: '' };
 const alertFiContracts = alertFiDefinitions.map(def => {
     let alertFiContract = {
         contractParam: def.contractParam,
@@ -54,19 +56,25 @@ async function start() {
 
             const resultBN = ethers.BigNumber.from(resultToRead);
             const alertValueBN = ethers.BigNumber.from(alertFiContract.alertValue);
-            switch (alertFiContract.compareMethod) {
-                case 'gte':
-                    if (resultBN.gte(alertValueBN)) {
-                        providerHelpers.sendTelegramMessage(`${alertFiContract.name}`, `${ethers.utils.formatUnits(resultToRead, parseResult)}`, alertFiContract.alertType);
-                    }
-                    break;
-                default:
-                    if (resultBN.lte(alertValueBN)) {
-                        providerHelpers.sendTelegramMessage(`${alertFiContract.name}`, `${ethers.utils.formatUnits(resultToRead, parseResult)}`, alertFiContract.alertType);
-                    }
-                    break;
+            const tgMessage = `${ethers.utils.formatUnits(resultToRead, parseResult)}`;
+            const now = new Date();
+            const nextTelegramMessage = new Date(lastTelegramMessage.timestamp + 5 * 60000);
+            if (nextTelegramMessage < now && tgMessage !== lastTelegramMessage.message) {
+                switch (alertFiContract.compareMethod) {
+                    case 'gte':
+                        if (resultBN.gte(alertValueBN)) {
+                            providerHelpers.sendTelegramMessage(`${alertFiContract.name}`, tgMessage, alertFiContract.alertType);
+                        }
+                        break;
+                    default:
+                        if (resultBN.lte(alertValueBN)) {
+                            providerHelpers.sendTelegramMessage(`${alertFiContract.name}`, tgMessage, alertFiContract.alertType);
+                        }
+                        break;
+                }
+                lastTelegramMessage.timestamp = now.getTime();
+                lastTelegramMessage.message = tgMessage;
             }
-
         }
     }
     console.log(`----------------`);
