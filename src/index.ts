@@ -6,7 +6,7 @@ import * as providerHelpers from './helpers/provider-helpers';
 
 
 let lastTelegramMessage: { timestamp: number, message: string } = { timestamp: 0, message: '' };
-const alertFiContracts = alertFiDefinitions.map(def => {
+const alertFiContracts = alertFiDefinitions.map((def: any) => {
     let alertFiContract = {
         contractParam: def.contractParam,
         method: def.method,
