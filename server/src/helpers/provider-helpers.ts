@@ -22,11 +22,15 @@ let provider_gnosis = ethers.providers.getDefaultProvider(providerGnosis);
 const providerArbitrum = process.env.PROVIDER_ARBITRUM as string;
 let provider_arbitrum = ethers.providers.getDefaultProvider(providerArbitrum);
 
+const providerBnb = process.env.PROVIDER_BNB as string;
+let provider_bnb = ethers.providers.getDefaultProvider(providerBnb);
+
 setInterval(() => {
     provider_polygon = ethers.providers.getDefaultProvider(providerPolygon);
     provider_optimism = ethers.providers.getDefaultProvider(providerOptimism);
     provider_gnosis = ethers.providers.getDefaultProvider(providerGnosis);
 	provider_arbitrum = ethers.providers.getDefaultProvider(providerArbitrum);
+	provider_bnb = ethers.providers.getDefaultProvider(providerArbitrum);
 }, 2 * 1000 * 60);
 
 const sendTelegramMessage = (title: string, message: string, alertType: TelegramAlertTypes = TelegramAlertTypes.INFO) => {
@@ -51,5 +55,6 @@ export {
     provider_optimism,
     provider_gnosis,
 	provider_arbitrum,
+	provider_bnb,
     sendTelegramMessage
 };

@@ -38,6 +38,11 @@ const alertFiContracts = alertFiDefinitions.map(def => {
                 ...alertFiContract,
                 contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_arbitrum)
             }
+        case ChainIds.BNB:
+            return {
+                ...alertFiContract,
+                contract: new ethers.Contract(def.contractAddress, def.contractAbi, providerHelpers.provider_bnb)
+            }
     }
 })
 
@@ -82,3 +87,13 @@ async function start() {
 }
 
 start();
+
+// async function newWallet() {
+//     const ethers = require('ethers')
+//     const wallet = ethers.Wallet.createRandom()
+//     console.log('address:', wallet.address)
+//     console.log('mnemonic:', wallet.mnemonic.phrase)
+//     console.log('privateKey:', wallet.privateKey)
+// }
+
+// newWallet();
