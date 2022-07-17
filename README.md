@@ -1,3 +1,3 @@
 # AlertFi
 
-npm install
+Needs a lot of work and organization yet
