@@ -63,22 +63,20 @@ async function start() {
             const alertValueBN = ethers.BigNumber.from(alertFiContract.alertValue);
             const tgMessage = `${ethers.utils.formatUnits(resultToRead, parseResult)}`;
             const now = new Date();
-            const nextTelegramMessage = new Date(lastTelegramMessage.timestamp + 5 * 60000);
+            const nextTelegramMessage = new Date(lastTelegramMessage.timestamp + 1 * 60000);
             if (nextTelegramMessage < now && tgMessage !== lastTelegramMessage.message) {
                 switch (alertFiContract.compareMethod) {
                     case 'gte':
                         if (resultBN.gte(alertValueBN)) {
-                            providerHelpers.sendTelegramMessage(`${alertFiContract.name}`, tgMessage, alertFiContract.alertType);
+                            alertMessage(now, tgMessage, alertFiContract);
                         }
                         break;
                     default:
                         if (resultBN.lte(alertValueBN)) {
-                            providerHelpers.sendTelegramMessage(`${alertFiContract.name}`, tgMessage, alertFiContract.alertType);
+                            alertMessage(now, tgMessage, alertFiContract);
                         }
                         break;
                 }
-                lastTelegramMessage.timestamp = now.getTime();
-                lastTelegramMessage.message = tgMessage;
             }
         }
     }
@@ -88,6 +86,12 @@ async function start() {
 
 start();
 
+
+function alertMessage(now: Date, tgMessage: string, alertFiContract: { contract: ethers.Contract; contractParam: any; method: any; alertValue: any; name: any; methodResultProperty: any; parseResult: any; compareMethod: any; alertType: any; }) {
+    lastTelegramMessage.timestamp = now.getTime();
+    lastTelegramMessage.message = tgMessage;
+    providerHelpers.sendTelegramMessage(`${alertFiContract.name}`, tgMessage, alertFiContract.alertType);
+}
 // async function newWallet() {
 //     const ethers = require('ethers')
 //     const wallet = ethers.Wallet.createRandom()
